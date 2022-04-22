@@ -49,7 +49,7 @@
 
 ### Часть 1
 
-загружаем датасет и разделяем на тренировочную и тестовую выборки
+Загружаем датасет и разделяем на тренировочную и тестовую выборки
 
       import pickle
       with open('mnist.pkl','rb') as f:
@@ -207,18 +207,126 @@
 
        hist = net.fit(train_data, train_labels, lr=0.001, epochs=30, batch_size=256, validation_data=(test_data,test_labels))
     
-![avatar](pictures\im2.png)
+![avatar](pictures/im2.png)
 
-### Часть 1
+### Часть 2
 
+Импортируем нужные библиотеки
 
+      import matplotlib.pyplot as plt 
+      import pandas as pd
+      import numpy as np
+      import tensorflow as tf
+      import keras
+      print("tensorflow version: "+tf.__version__)
+      print("keras version: "+keras.__version__)
+      
+Загружаем датасет и разделяем на тренировочную и тестовую выборки
+
+      import pickle
+      with open('mnist.pkl','rb') as f:
+          MNIST = pickle.load(f)
+
+      labels = MNIST['Train']['Labels']
+      data = MNIST['Train']['Features'].astype(np.float32)/256
+
+      from sklearn.model_selection import train_test_split
+      train_data, test_data, train_labels, test_labels = train_test_split(data, labels, stratify=labels,test_size=0.2)
+      test_data = np.array([data / 255 for data in test_data])
+      train_data = np.array([data / 255 for data in train_data])
+
+#### Keras
+
+Создаем молель
+
+      model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(784,)),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10)
+      ])
+
+      loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+
+      model.compile(optimizer='adam',
+                    loss=loss_fn,
+                    metrics=['accuracy'])
+              
+Обучение модели
+              
+      history = model.fit(train_data, train_labels, epochs=15)
+
+![avatar](pictures/im3.png)
+
+Смотрим точность на тестовое выборке
+
+      model.test_on_batch(test_data ,test_labels)  
+Вывод:
+      [0.4431709945201874, 0.8720238208770752]
+
+Для Fasion MNIST
+
+      (train_data, train_labels), (test_data ,test_labels) = tf.keras.datasets.fashion_mnist.load_data()
+      model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28,28)),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(10)
+      ])
+      loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+      model.compile(optimizer='adam',
+                    loss=loss_fn,
+                    metrics=['accuracy'])
+
+      history = model.fit(x_train, y_train, epochs=20)
+
+![avatar](pictures/im4.png)
+
+      model.test_on_batch(x_test,y_test)
+   Вывод
+      [0.4585808217525482, 0.8457000255584717]
+
+####Tensorflow
+
+      dataset = tf.data.Dataset.from_tensor_slices((train_data, train_labels.astype(np.float32)))
+      dataset = dataset.batch(10)
+      dataset
+
+      optimizer = tf.keras.optimizers.Adam(0.01)
+
+      learning_rate = 0.05
+
+      W = tf.Variable(tf.random.normal(shape=(784,1)))
+      b = tf.Variable(tf.zeros(shape=(10,1),dtype=tf.float32))
+
+      @tf.function
+      def train_on_batch(x, y):
+        vars = [W, b]
+        with tf.GradientTape() as tape:
+          z = tf.matmul(x, W) + b
+          loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(z,y))
+          correct_prediction = tf.equal(tf.round(y), tf.round(z))
+          acc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+          grads = tape.gradient(loss, vars)
+          optimizer.apply_gradients(zip(grads,vars))
+        return loss,acc
+
+      for epoch in range(40):
+            for step, (x, y) in enumerate(dataset):
+                  loss,acc = train_on_batch(tf.reshape(x,(-1,784)), tf.reshape(y,(10,-1)))
+            print('Epoch %d: last batch loss = %.4f, acc = %.4f' % (epoch, float(loss),acc))
 
 ## Codespaces
 
 По возможности, используйте GitHub Codespaces для выполнения работы. По результатам, дайте обратную связь:
-1. Что понравилось?
-1. Что не понравилось?
-1. Какие ошибки или существенные затруднения в работе вы встречали? (По возможности, будьте как можно более подробны, указывайте шаги для воспроизведения ошибок)
+1. Что понравилось
+Работать с неёросетью
+
+2. Что не понравилось?
+Хотелось бы больше погрузится в тему на лекции.
+
+3. Какие ошибки или существенные затруднения в работе вы встречали? (По возможности, будьте как можно более подробны, указывайте шаги для воспроизведения ошибок)
+Работа с tensorflow, а именно с фанкцией sparse_softmax_cross_entropy_with_logits().
 
 ## Материалы для изучения
 
