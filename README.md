@@ -286,7 +286,7 @@
    Вывод
       [0.4585808217525482, 0.8457000255584717]
 
-####Tensorflow
+#### Tensorflow
 
       dataset = tf.data.Dataset.from_tensor_slices((train_data, train_labels.astype(np.float32)))
       dataset = dataset.batch(10)
