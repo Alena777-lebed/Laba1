@@ -195,7 +195,7 @@
 
        hist = net.fit(train_data, train_labels, lr=0.001, epochs=30, batch_size=256, validation_data=(test_data,test_labels))
     
-
+![avatar](im2.png)
 
 ## Codespaces
 
