@@ -165,7 +165,6 @@
                   print(f"epoch: {epo+1}/{epochs}")
                   for i in range(4):
                       print(f"{['train_acc','train_loss','test_acc','test_loss'][i]}: {history[-1][i]}")
-                  #print("confusion matrix:", self.get_conf_mat(X_train, y_train), sep='\n')
               return history
               
        net = Net()
@@ -174,6 +173,8 @@
        net.compile(loss=CrossEntropyLoss())
 
        hist = net.fit(train_data,train_labels, lr=0.001, epochs=30, batch_size=256, validation_data=(test_data,test_labels))
+       
+![avatar](/Alena777-lebed/Laba1/im1.png)
        
        class Tanh:
           def forward(self,x):
