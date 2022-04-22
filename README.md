@@ -47,7 +47,9 @@
 
 ## Отчёт по работе
 
-Часть 1
+### Часть 1
+
+загружаем датасет и разделяем на тренировочную и тестовую выборки
 
       import pickle
       with open('mnist.pkl','rb') as f:
@@ -59,6 +61,8 @@
       data = MNIST['Train']['Features'].astype(np.float32)/256
       from sklearn.model_selection import train_test_split
       train_data, test_data, train_labels, test_labels = train_test_split(data, labels, stratify=labels,test_size=0.25)
+      
+Задаем нейросетевую модель:
       
       class Linear:
           def __init__(self,nin,nout):
@@ -106,6 +110,8 @@
               dlog_softmax = np.zeros_like(self.p)
               dlog_softmax[np.arange(len(self.y)), self.y] -= 1.0/len(self.y)
               return dlog_softmax / self.p
+              
+Для удобства опишем класс, который позволяет объединять узлы вычислительного графа в единую сеть, и применять функции forward и backward сразу ко всей сети последовательно:
               
       class Net:
           def __init__(self):
@@ -167,6 +173,8 @@
                       print(f"{['train_acc','train_loss','test_acc','test_loss'][i]}: {history[-1][i]}")
               return history
               
+ Создаем и обучаем нейросеть:
+              
        net = Net()
        net.add(Linear(784, 10))
        net.add(Softmax())
@@ -174,7 +182,9 @@
 
        hist = net.fit(train_data,train_labels, lr=0.001, epochs=30, batch_size=256, validation_data=(test_data,test_labels))
        
-![avatar](im1.png)
+![avatar](pictures\im1.png)
+       
+Передаточная функция:
        
        class Tanh:
           def forward(self,x):
@@ -183,7 +193,9 @@
               return y
           def backward(self,dy):
               return (1.0-self.y**2)*dy
-              
+            
+Создаем и обучаем многослойную модель:
+            
        net = Net()
        net.add(Linear(784, 300))
        net.add(Tanh())
@@ -195,7 +207,11 @@
 
        hist = net.fit(train_data, train_labels, lr=0.001, epochs=30, batch_size=256, validation_data=(test_data,test_labels))
     
-![avatar](im2.png)
+![avatar](pictures\im2.png)
+
+### Часть 1
+
+
 
 ## Codespaces
 
